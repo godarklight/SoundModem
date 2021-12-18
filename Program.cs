@@ -36,7 +36,7 @@ namespace SoundModem
             //input = new QPSK(SAMPLE_RATE, 500, digitalData);
             //input = new AM(2000, SAMPLE_RATE, analogData);
             //input = new FM(2000, SAMPLE_RATE, analogData);
-            input = new SSB(2000, SAMPLE_RATE, analogData);
+            input = new SSB(2000, SAMPLE_RATE, analogData, true);
 
             //Output format
             MemoryStream outStream = new MemoryStream();
