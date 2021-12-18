@@ -18,15 +18,14 @@ namespace SoundModem
             samplesPerUnit = (sampleRate * 60) / (50 * wpm);
         }
 
-        public int GetInput(double[] samples)
+        public bool GetInput(IFormat output)
         {
-            int currentSample = 0;
             if (bytesToSend == null)
             {
                 int data = inputData.ReadByte();
                 if (data == -1)
                 {
-                    return 0;
+                    return false;
                 }
                 if (data != ' ')
                 {
@@ -41,15 +40,15 @@ namespace SoundModem
                     else
                     {
                         //20 for newlines?
-                        Tone.WriteSilence(samples, ref currentSample, 17 * samplesPerUnit);
-                        return currentSample;
+                        Tone.WriteSilence(output, 17 * samplesPerUnit);
+                        return true;
                     }
                 }
                 else
                 {
                     //7 samples between words
-                    Tone.WriteSilence(samples, ref currentSample, 4 * samplesPerUnit);
-                    return currentSample;
+                    Tone.WriteSilence(output, 4 * samplesPerUnit);
+                    return true;
                 }
             }
 
@@ -59,31 +58,31 @@ namespace SoundModem
             if (b == 0)
             {
                 double phase = 0;
-                Tone.Write(samples, ref currentSample, samplesPerUnit, 700, 48000, ref phase);
-                Tone.WriteToZero(samples, ref currentSample, 700, 48000, ref phase);
+                Tone.Write(output, samplesPerUnit, 700, 48000, ref phase);
+                Tone.WriteToZero(output, 700, 48000, ref phase);
             }
 
             //Write dah
             if (b == 1)
             {
                 double phase = 0;
-                Tone.Write(samples, ref currentSample, 3 * samplesPerUnit, 700, 48000, ref phase);
-                Tone.WriteToZero(samples, ref currentSample, 700, 48000, ref phase);
+                Tone.Write(output, 3 * samplesPerUnit, 700, 48000, ref phase);
+                Tone.WriteToZero(output, 700, 48000, ref phase);
             }
 
             //Write character space
-            Tone.WriteSilence(samples, ref currentSample, samplesPerUnit);
+            Tone.WriteSilence(output, samplesPerUnit);
 
             //Next word
             byteToSendPos++;
             if (bytesToSend.Length == byteToSendPos)
             {
                 //3 samples between characters
-                Tone.WriteSilence(samples, ref currentSample, 2 * samplesPerUnit);
+                Tone.WriteSilence(output, 2 * samplesPerUnit);
                 bytesToSend = null;
                 byteToSendPos = 0;
             }
-            return currentSample;
+            return true;
         }
     }
 }

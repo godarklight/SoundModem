@@ -5,7 +5,7 @@ namespace SoundModem
     public static class IQ
     {
         private static double lastValue = 0;
-        public static void Write(double[] samples, ref int startPos, int length, double frequency, int sampleRate, ref double fromI, ref double fromQ, double toI, double toQ, ref double lastPhaseAngle)
+        public static void Write(IFormat output, int length, double frequency, int sampleRate, ref double fromI, ref double fromQ, double toI, double toQ, ref double lastPhaseAngle)
         {
             double samplesPerCycle = sampleRate / (double)frequency;
             //Keep in sync with the carrier
@@ -33,7 +33,7 @@ namespace SoundModem
                 lastValue = value;
 
 
-                samples[startPos + i] = value;
+                output.WriteOutput(value);
 
                 //Sum
                 if (i == length - 1)
@@ -43,7 +43,6 @@ namespace SoundModem
             }
             fromI = toI;
             fromQ = toQ;
-            startPos += length;
         }
     }
 }

@@ -22,12 +22,11 @@ namespace SoundModem
             this.samplesPerUnit = (int)(sampleRate / baud);
         }
 
-        public int GetInput(double[] samples)
+        public bool GetInput(IFormat output)
         {
-            int currentSample = 0;
             if (endSent)
             {
-                return 0;
+                return false;
             }
             //Send sync pulses
             if (!syncSent)
@@ -36,9 +35,9 @@ namespace SoundModem
                 for (int i = 0; i < 32; i++)
                 {
                     int phase = pskc.GetPhase(0);
-                    IQ.Write(samples, ref currentSample, samplesPerUnit, 1500, sampleRate, ref fromI, ref fromQ, GetI(phase), GetQ(phase), ref phaseAngle);
+                    IQ.Write(output, samplesPerUnit, 1500, sampleRate, ref fromI, ref fromQ, GetI(phase), GetQ(phase), ref phaseAngle);
                 }
-                return currentSample;
+                return true;
             }
 
             //Send data;
@@ -49,10 +48,10 @@ namespace SoundModem
                 for (int i = 0; i < 32; i++)
                 {
                     int phase = pskc.GetPhase(1);
-                    IQ.Write(samples, ref currentSample, samplesPerUnit, 1500, sampleRate, ref fromI, ref fromQ, GetI(phase), GetQ(phase), ref phaseAngle);
+                    IQ.Write(output, samplesPerUnit, 1500, sampleRate, ref fromI, ref fromQ, GetI(phase), GetQ(phase), ref phaseAngle);
                 }
                 endSent = true;
-                return currentSample;
+                return true;
             }
 
             while (sendData > 0)
@@ -60,17 +59,17 @@ namespace SoundModem
                 int sendBit = sendData.Value & 1;
                 sendData = sendData >> 1;
                 int phase = pskc.GetPhase(sendBit);
-                IQ.Write(samples, ref currentSample, samplesPerUnit, 1500, sampleRate, ref fromI, ref fromQ, GetI(phase), GetQ(phase), ref phaseAngle);
+                IQ.Write(output, samplesPerUnit, 1500, sampleRate, ref fromI, ref fromQ, GetI(phase), GetQ(phase), ref phaseAngle);
             }
 
             //Interspace
             for (int i = 0; i < 2; i++)
             {
                 int phase = pskc.GetPhase(0);
-                IQ.Write(samples, ref currentSample, samplesPerUnit, 1500, sampleRate, ref fromI, ref fromQ, GetI(phase), GetQ(phase), ref phaseAngle);
+                IQ.Write(output, samplesPerUnit, 1500, sampleRate, ref fromI, ref fromQ, GetI(phase), GetQ(phase), ref phaseAngle);
             }
 
-            return currentSample;
+            return true;
         }
 
         //IQ Modulation

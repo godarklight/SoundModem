@@ -4,26 +4,30 @@ namespace SoundModem
 {
     public class Sine : IInput
     {
-        long sampleNumber;
-        double sampleCycle;
-        public Sine(double sampleRate, double frequency)
+        double phaseAngle;
+        double cycleShift;
+        double timeLeft;
+        double sampleRate;
+        public Sine(double sampleRate, double frequency, double seconds)
         {
-            sampleCycle = sampleRate / frequency;
+            this.sampleRate = sampleRate;
+            this.timeLeft = seconds;
+            cycleShift = Math.Tau * frequency / sampleRate;
         }
 
-        public int GetInput(double[] samples)
+        public bool GetInput(IFormat output)
         {
-            for (int i = 0; i < samples.Length; i++)
+            for (int i = 0; i < 128; i++)
             {
-                double cycleAngle = (sampleNumber / sampleCycle) * 2 * Math.PI;
-                samples[i] = Math.Sin(cycleAngle);
-                sampleNumber++;
-                if (sampleNumber > sampleCycle)
+                phaseAngle += cycleShift % Math.Tau;
+                timeLeft -= 1 / sampleRate;
+                if (timeLeft < 0)
                 {
-                    sampleNumber = 0;
+                    return i > 0;
                 }
+                output.WriteOutput(0.5 * Math.Sin(phaseAngle));
             }
-            return samples.Length;
+            return true;
         }
     }
 }

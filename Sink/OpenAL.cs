@@ -1,8 +1,7 @@
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
-using OpenTK.Audio;
 using OpenTK.Audio.OpenAL;
 
 namespace SoundModem
@@ -44,9 +43,10 @@ namespace SoundModem
             audioBuffer2Ptr = handle2.AddrOfPinnedObject();
         }
 
-        public void Write(byte[] sinkData, int sinkLength)
+        public void Write(Stream inData)
         {
-            int bytesLeft = sinkLength;
+            int bytesLeft = (int)inData.Position;
+            inData.Position = 0;
             while (bytesLeft > 0)
             {
                 //Write to free buffer
@@ -66,7 +66,7 @@ namespace SoundModem
                 }
 
                 //Copy data into buffer
-                Array.Copy(sinkData, sinkLength - bytesLeft, freeBuffer, writePos, bufferWrite);
+                inData.Read(freeBuffer, writePos, bufferWrite);
                 bytesLeft -= bufferWrite;
                 writePos += bufferWrite;
 
@@ -102,6 +102,7 @@ namespace SoundModem
                     }
                 }
             }
+            inData.Position = 0;
         }
 
         public void FillWithSilence()

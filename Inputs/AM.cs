@@ -8,36 +8,33 @@ namespace SoundModem
         double phaseAngle;
         double carrier;
         double sampleRate;
-        Stream inData;
+        IFormat inData;
 
-        public AM(double carrier, double sampleRate, Stream inData)
+        public AM(double carrier, double sampleRate, IFormat inData)
         {
             this.carrier = carrier;
             this.inData = inData;
             this.sampleRate = sampleRate;
         }
 
-        public int GetInput(double[] samples)
+        public bool GetInput(IFormat output)
         {
-            int currentSample = 0;
             for (int i = 0; i < 128; i++)
             {
-                int byte1 = inData.ReadByte();
-                int byte2 = inData.ReadByte();
-                if (byte1 == -1 || byte2 == -1)
+                double? amplitude = inData.ReadInput();
+                if (amplitude == null)
                 {
-                    inData.Seek(44, SeekOrigin.Begin);
-                    byte1 = inData.ReadByte();
-                    byte2 = inData.ReadByte();
+                    return false;
                 }
-                short s16le = (short)((byte2 << 8) + byte1);
-                double amplitude = 0.5d + (s16le / 65535d);
+
+                //Shift from -1:1 to 0:1
+                double amplitudeIQ = 0.5 + (amplitude.Value / 2d);
+
                 phaseAngle = phaseAngle + (Math.Tau * carrier / sampleRate);
-                double value = amplitude * Math.Sin(phaseAngle);
-                samples[i] = value;
-                currentSample++;
+                double value = amplitudeIQ * Math.Sin(phaseAngle);
+                output.WriteOutput(value);
             }
-            return currentSample;
+            return true;
         }
     }
 }

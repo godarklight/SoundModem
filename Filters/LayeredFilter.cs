@@ -3,15 +3,15 @@
 using System;
 namespace SoundModem
 {
-    class LayeredNotchFilter
+    class LayeredFilter : IFilter
     {
-        NotchFilter[] filters;
-        public LayeredNotchFilter(double frequency, double bandwidth, double sampleRate, int iterations)
+        IFilter[] filters;
+        public LayeredFilter(Func<int, IFilter> generator, int iterations)
         {
-            filters = new NotchFilter[iterations];
+            filters = new IFilter[iterations];
             for (int i = 0; i < iterations; i++)
             {
-                filters[i] = new NotchFilter(frequency, bandwidth, sampleRate);
+                filters[i] = generator(i);
             }
         }
 

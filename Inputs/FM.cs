@@ -3,42 +3,41 @@ using System.IO;
 
 namespace SoundModem
 {
+    //Bandwidth of FM channels is 9khz in real life, for this demo I will make it 1khz.
     public class FM : IInput
     {
         double phaseAngle;
         double carrier;
         double sampleRate;
-        Stream inData;
+        IFormat inData;
+        LowPassFilter voiceFilter;
 
-        public FM(double carrier, double sampleRate, Stream inData)
+        public FM(double carrier, double sampleRate, IFormat inData)
         {
             this.carrier = carrier;
             this.inData = inData;
             this.sampleRate = sampleRate;
+            voiceFilter = new LowPassFilter(1000, sampleRate);
         }
 
-        public int GetInput(double[] samples)
+        public bool GetInput(IFormat output)
         {
             int currentSample = 0;
             for (int i = 0; i < 128; i++)
             {
-                int byte1 = inData.ReadByte();
-                int byte2 = inData.ReadByte();
-                if (byte1 == -1 || byte2 == -1)
+                double? amplitude = inData.ReadInput();
+                if (amplitude == null)
                 {
-                    inData.Seek(44, SeekOrigin.Begin);
-                    byte1 = inData.ReadByte();
-                    byte2 = inData.ReadByte();
+                    return i > 0;
                 }
-                short s16le = (short)((byte2 << 8) + byte1);
-                double amplitude = s16le / 32767d;
-                double freqShift = amplitude * 1500d;
+                voiceFilter.AddSample(amplitude.Value);
+                double freqShift = voiceFilter.GetSample() * 1000;
                 phaseAngle = phaseAngle + (Math.Tau * (carrier + freqShift) / sampleRate);
                 double value = Math.Sin(phaseAngle);
-                samples[i] = value;
+                output.WriteOutput(value);
                 currentSample++;
             }
-            return currentSample;
+            return true;
         }
     }
 }

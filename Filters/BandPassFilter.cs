@@ -3,13 +3,13 @@
 using System;
 namespace SoundModem
 {
-    class NotchFilter
+    class BandPassFilter : IFilter
     {
         double[] inputCoeff = new double[3];
         double[] filterCoeff = new double[3];
         double[] inputValues = new double[3];
         double[] filterValues = new double[3];
-        public NotchFilter(double frequency, double bandwidth, double sampleRate)
+        public BandPassFilter(double frequency, double bandwidth, double sampleRate)
         {
             double cosValue = Math.Cos(Math.Tau * (frequency / sampleRate));
             double Rvalue = 1 - 3 * (bandwidth / sampleRate);

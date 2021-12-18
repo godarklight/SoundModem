@@ -1,28 +1,27 @@
-//This is struggling, likely bunged up the implementation
+//Reference http://dspguide.com/ch19/3.htm
+
 using System;
 namespace SoundModem
 {
-    class Butterworth : IFilter
+    class BandRejectFilter : IFilter
     {
         double[] inputCoeff = new double[3];
         double[] filterCoeff = new double[3];
         double[] inputValues = new double[3];
         double[] filterValues = new double[3];
-        public Butterworth(double frequency, double sampleRate)
+        public BandRejectFilter(double frequency, double bandwidth, double sampleRate)
         {
-            //https://stackoverflow.com/questions/20924868/calculate-coefficients-of-2nd-order-butterworth-low-pass-filter
-
-
-            double QcRaw = (2 * Math.PI * frequency) / sampleRate; // Find cutoff frequency in [0..PI]
-            double QcWarp = Math.Tan(QcRaw); // Warp cutoff frequency
-
-            double gain = 1 / (1 + Math.Sqrt(2) / QcWarp + 2 / (QcWarp * QcWarp));
-            inputCoeff[0] = 1 * gain;
-            inputCoeff[1] = 2 * gain;
-            inputCoeff[2] = 1 * gain;
+            double cosValue = Math.Cos(Math.Tau * (frequency / sampleRate));
+            double Rvalue = 1 - 3 * (bandwidth / sampleRate);
+            double KvalueTop = 1 - (2 * Rvalue * cosValue) + (Rvalue * Rvalue);
+            double KvalueBottom = 2 - (2 * cosValue);
+            double Kvalue = KvalueTop / KvalueBottom;
+            inputCoeff[0] = Kvalue;
+            inputCoeff[1] = -2 * Kvalue * cosValue;
+            inputCoeff[2] = Kvalue;
             filterCoeff[0] = 0;
-            filterCoeff[1] = (2 - 2 * 2 / (QcWarp * QcWarp)) * gain;
-            filterCoeff[2] = (1 - Math.Sqrt(2) / QcWarp + 2 / (QcWarp * QcWarp)) * gain;
+            filterCoeff[1] = 2 * Rvalue * cosValue;
+            filterCoeff[2] = -(Rvalue * Rvalue);
         }
 
         public void AddSample(double input)

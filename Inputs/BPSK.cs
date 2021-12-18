@@ -21,22 +21,22 @@ namespace SoundModem
             this.samplesPerUnit = (int)(sampleRate / baud);
         }
 
-        public int GetInput(double[] samples)
+        public bool GetInput(IFormat output)
         {
-            int currentSample = 0;
             if (endSent)
             {
-                return 0;
+                return false;
             }
+            
             //Send sync pulses
             if (!syncSent)
             {
                 syncSent = true;
                 for (int i = 0; i < 32; i++)
                 {
-                    IQ.Write(samples, ref currentSample, samplesPerUnit, 1500, sampleRate, ref fromI, ref fromQ, -fromI, 0, ref phaseAngle);
+                    IQ.Write(output, samplesPerUnit, 1500, sampleRate, ref fromI, ref fromQ, -fromI, 0, ref phaseAngle);
                 }
-                return currentSample;
+                return true;
             }
 
             //Send data;
@@ -46,10 +46,10 @@ namespace SoundModem
                 //Ends with carrier
                 for (int i = 0; i < 32; i++)
                 {
-                    IQ.Write(samples, ref currentSample, samplesPerUnit, 1500, sampleRate, ref fromI, ref fromQ, fromI, 0, ref phaseAngle);
+                    IQ.Write(output, samplesPerUnit, 1500, sampleRate, ref fromI, ref fromQ, fromI, 0, ref phaseAngle);
                 }
                 endSent = true;
-                return currentSample;
+                return true;
             }
 
             while (sendData > 0)
@@ -61,16 +61,16 @@ namespace SoundModem
                 {
                     newI = -newI;
                 }
-                IQ.Write(samples, ref currentSample, samplesPerUnit, 1500, sampleRate, ref fromI, ref fromQ, newI, 0, ref phaseAngle);
+                IQ.Write(output, samplesPerUnit, 1500, sampleRate, ref fromI, ref fromQ, newI, 0, ref phaseAngle);
             }
 
             //Interspace
             for (int i = 0; i < 2; i++)
             {
-                IQ.Write(samples, ref currentSample, samplesPerUnit, 1500, sampleRate, ref fromI, ref fromQ, -fromI, 0, ref phaseAngle);
+                IQ.Write(output, samplesPerUnit, 1500, sampleRate, ref fromI, ref fromQ, -fromI, 0, ref phaseAngle);
             }
 
-            return currentSample;
+            return true;
         }
     }
 }

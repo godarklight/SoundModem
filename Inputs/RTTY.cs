@@ -20,16 +20,15 @@ namespace SoundModem
             samplesPerUnit = (int)(sampleRate / baud);
             baudot = new Baudot(inputData);
         }
-        public int GetInput(double[] samples)
+        public bool GetInput(IFormat output)
         {
-            int currentSample = 0;
             byte[] sendData = baudot.GetData();
             if (sendData == null)
             {
-                return 0;
+                return false;
             }
 
-            Tone.Write(samples, ref currentSample, samplesPerUnit, freqLow, sampleRate, ref lastAngle);
+            Tone.Write(output, samplesPerUnit, freqLow, sampleRate, ref lastAngle);
 
             //Data bits
             for (int i = 0; i < sendData.Length; i++)
@@ -40,12 +39,12 @@ namespace SoundModem
                 {
                     freqToSend = freqHigh;
                 }
-                Tone.Write(samples, ref currentSample, samplesPerUnit, freqToSend, sampleRate, ref lastAngle);
+                Tone.Write(output, samplesPerUnit, freqToSend, sampleRate, ref lastAngle);
             }
             
             //Stop bit
-            Tone.Write(samples, ref currentSample, (int)(samplesPerUnit * 1.5), freqHigh, sampleRate, ref lastAngle);
-            return currentSample;
+            Tone.Write(output, (int)(samplesPerUnit * 1.5), freqHigh, sampleRate, ref lastAngle);
+            return true;
         }
     }
 }

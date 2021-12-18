@@ -2,25 +2,34 @@ namespace SoundModem
 {
     public class Sawtooth : IInput
     {
-        long sampleNumber;
-        long sampleCycle;
-        public Sawtooth(long sampleRate, long frequency)
+        double lastPos;
+        double cycleShift;
+        double timeLeft;
+        double sampleRate;
+        public Sawtooth(double sampleRate, double frequency, double seconds)
         {
-            sampleCycle = sampleRate / frequency;
+            this.sampleRate = sampleRate;
+            this.timeLeft = seconds;
+            cycleShift = frequency / sampleRate;
         }
 
-        public int GetInput(double[] samples)
+        public bool GetInput(IFormat output)
         {
-            for (int i = 0; i < samples.Length; i++)
+            for (int i = 0; i < 128; i++)
             {
-                samples[i] = -1f + 2 * (sampleNumber / (double)sampleCycle);
-                sampleNumber++;
-                if (sampleCycle == sampleNumber)
+                lastPos += cycleShift;
+                if (lastPos > 0.5)
                 {
-                    sampleNumber = 0;
+                    lastPos -= 1;
                 }
+                timeLeft -= 1 / sampleRate;
+                if (timeLeft < 0)
+                {
+                    return i > 0;
+                }
+                output.WriteOutput(lastPos);
             }
-            return samples.Length;
+            return true;
         }
     }
 }

@@ -10,50 +10,62 @@ namespace SoundModem
         double carrierAngle;
         double carrier;
         double sampleRate;
-        Stream inData;
-        NotchFilter voiceNotchFilter;
-        LayeredNotchFilter filterI;
-        LayeredNotchFilter filterQ;
-        const double voiceFilter = 2000;
+        IFormat inData;
+        IFilter voiceFilter;
+        IFilter filterI;
+        IFilter filterQ;
+        const double voiceBandwidth = 2000;
 
-        public SSB(double carrier, double sampleRate, Stream inData)
+        public SSB(double carrier, double sampleRate, IFormat inData)
         {
             this.carrier = carrier;
             this.inData = inData;
             this.sampleRate = sampleRate;
-            double center = voiceFilter * 0.5;
-            double bandwidth = voiceFilter * 0.45;
-            voiceNotchFilter = new NotchFilter(voiceFilter / 2, voiceFilter / 2, sampleRate);
-            filterI = new LayeredNotchFilter(center, bandwidth, sampleRate, 5);
-            filterQ = new LayeredNotchFilter(center, bandwidth, sampleRate, 5);
+            voiceFilter = new LayeredFilter(FilterGenerator, 2);
+            filterI = new LayeredFilter(FilterGenerator, 2);
+            filterQ = new LayeredFilter(FilterGenerator, 2);
         }
 
-        public int GetInput(double[] samples)
+        //FilterI and FilterQ return the lower side band
+        private IFilter FilterGenerator(int iteration)
         {
-            int currentSample = 0;
+            IFilter retVal = null;
+            switch (iteration)
+            {
+                case 0:
+                    //Remove upper side band
+                    retVal = new WindowedSinc(voiceBandwidth * 0.5, 2048, sampleRate);
+                    break;
+                case 1:
+                    //Supress the carrier frequency
+                    retVal = new BandRejectFilter(voiceBandwidth, voiceBandwidth * 0.1, sampleRate);
+                    break;
+                default:
+                    //Keep voice range
+                    break;
+            }
+            return retVal;
+        }
+
+        public bool GetInput(IFormat output)
+        {
             for (int i = 0; i < 128; i++)
             {
-                int byte1 = inData.ReadByte();
-                int byte2 = inData.ReadByte();
-                if (byte1 == -1 || byte2 == -1)
+                double? amplitude = inData.ReadInput();
+                if (amplitude == null)
                 {
-                    inData.Seek(44, SeekOrigin.Begin);
-                    byte1 = inData.ReadByte();
-                    byte2 = inData.ReadByte();
-                    return 0;
+                    return i > 0;
                 }
-                short s16le = (short)((byte2 << 8) + byte1);
-                double amplitude = s16le / 32767d;
 
-                //Notch filter voice frequencies
-                voiceNotchFilter.AddSample(amplitude);
+                //Filter out frequencies we can't encode
+                voiceFilter.AddSample(amplitude.Value);
 
-                //Shift from -1:1 to 0:1
-                double amplitudeIQ = 0.5 + (voiceNotchFilter.GetSample() / 2d);
+                //Shift from -1:1 to 0:1 (AM modulation)
+                double amplitudeIQ = 0.5 + (voiceFilter.GetSample() / 2d);
 
                 //Calculate phases
-                voiceAngle = voiceAngle + (Math.Tau * voiceFilter / sampleRate);
-                carrierAngle = carrierAngle + (Math.Tau * (carrier + voiceFilter) / sampleRate);
+                voiceAngle = voiceAngle + (Math.Tau * voiceBandwidth / sampleRate);
+                carrierAngle = carrierAngle + (Math.Tau * (carrier + voiceBandwidth) / sampleRate);
 
                 //Calculate I and Q
                 double valuei = amplitudeIQ * Math.Cos(voiceAngle);
@@ -61,16 +73,14 @@ namespace SoundModem
                 filterI.AddSample(valuei);
                 filterQ.AddSample(valueq);
 
-                //Construct carrier
-                double samplei = filterI.GetSample() * Math.Cos(carrierAngle);
-                double sampleq = filterQ.GetSample() * Math.Sin(carrierAngle);
+                //Modulate at carrier frequency
+                double samplei = 2 * filterI.GetSample() * Math.Cos(carrierAngle);
+                double sampleq = 2 * filterQ.GetSample() * Math.Sin(carrierAngle);
 
-                samples[i] = samplei + sampleq;
-                //samples[i] = realFilter.GetSample();
-                //samples[i] = filterI2.GetSample();
-                currentSample++;
+                //output.WriteOutput(voiceFilter.GetSample());
+                output.WriteOutput(samplei + sampleq);
             }
-            return currentSample;
+            return true;
         }
     }
 }

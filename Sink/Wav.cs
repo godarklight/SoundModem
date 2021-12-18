@@ -6,10 +6,11 @@ namespace SoundModem
 {
     public class Wav : ISink
     {
+        byte[] chunk = new byte[128];
         FileStream fs;
-        public Wav()
+        public Wav(string fileName)
         {
-            fs = new FileStream("output.wav", FileMode.Create);
+            fs = new FileStream(fileName, FileMode.Create);
             byte[] wavHeader = new byte[44];
             Encoding.ASCII.GetBytes("RIFF").CopyTo(wavHeader, 0);
             Encoding.ASCII.GetBytes("WAVE").CopyTo(wavHeader, 8);
@@ -25,9 +26,22 @@ namespace SoundModem
             fs.Write(wavHeader, 0, 44);
         }
 
-        public void Write(byte[] sinkData, int sinkLength)
+        public void Write(Stream inData)
         {
-            fs.Write(sinkData, 0, sinkLength);
+            int bytesLeft = (int)inData.Position;
+            inData.Position = 0;
+            while (bytesLeft > 0)
+            {
+                int thisChunk = bytesLeft;
+                if (thisChunk > chunk.Length)
+                {
+                    thisChunk = chunk.Length;
+                }
+                inData.Read(chunk, 0, thisChunk);
+                fs.Write(chunk, 0, thisChunk);
+                bytesLeft -= thisChunk;
+            }
+            inData.Position = 0;
         }
 
         public void Close()
