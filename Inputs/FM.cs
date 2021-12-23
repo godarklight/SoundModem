@@ -10,14 +10,14 @@ namespace SoundModem
         double carrier;
         double sampleRate;
         IFormat inData;
-        LowPassFilter voiceFilter;
+        IFilter voiceFilter;
 
         public FM(double carrier, double sampleRate, IFormat inData)
         {
             this.carrier = carrier;
             this.inData = inData;
             this.sampleRate = sampleRate;
-            voiceFilter = new LowPassFilter(1000, sampleRate);
+            voiceFilter = new WindowedSinc(1000, 2048, sampleRate);
         }
 
         public bool GetInput(IFormat output)

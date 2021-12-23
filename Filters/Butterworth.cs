@@ -2,7 +2,7 @@
 using System;
 namespace SoundModem
 {
-    class Butterworth : IFilter
+    public class Butterworth : IFilter
     {
         double[] inputCoeff = new double[3];
         double[] filterCoeff = new double[3];

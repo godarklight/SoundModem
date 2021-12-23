@@ -2,7 +2,7 @@
 using System;
 namespace SoundModem
 {
-    class LowPassFilter : IFilter
+    public class LowPassFilter : IFilter
     {
         double filterValue;
         double weight;

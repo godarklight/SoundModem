@@ -3,7 +3,7 @@
 using System;
 namespace SoundModem
 {
-    class BandRejectFilter : IFilter
+    public class BandRejectFilter : IFilter
     {
         double[] inputCoeff = new double[3];
         double[] filterCoeff = new double[3];

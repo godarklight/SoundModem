@@ -3,7 +3,7 @@ using System;
 using System.IO;
 namespace SoundModem
 {
-    class WindowedSinc : IFilter
+    public class WindowedSinc : IFilter
     {
         private double[] inputValues;
         ///Sinc wave

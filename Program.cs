@@ -12,7 +12,7 @@ namespace SoundModem
         {
             //Digital data
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 2; i++)
             {
                 sb.Append("The quick brown fox jumps over the lazy dog 1234567890\n");
             }
@@ -27,7 +27,7 @@ namespace SoundModem
             IInput input = null;
             //input = new Sine(SAMPLE_RATE, 440, 5);
             //input = new Sawtooth(SAMPLE_RATE, 440, 5);
-            //input = new RTTY(SAMPLE_RATE, 500, 170, 45.45, digitalData);
+            input = new RTTY(SAMPLE_RATE, 500, 170, 45.45, digitalData);
             //input = new CW(SAMPLE_RATE, 24, digitalData);
             //input = new MFSK(SAMPLE_RATE);
             //input = new BPSK(SAMPLE_RATE, 31.25, digitalData);
@@ -36,7 +36,7 @@ namespace SoundModem
             //input = new QPSK(SAMPLE_RATE, 500, digitalData);
             //input = new AM(2000, SAMPLE_RATE, analogData);
             //input = new FM(2000, SAMPLE_RATE, analogData);
-            input = new SSB(2000, SAMPLE_RATE, analogData, true);
+            //input = new SSB(2000, SAMPLE_RATE, analogData, true);
 
             //Output format
             MemoryStream outStream = new MemoryStream();
@@ -44,7 +44,7 @@ namespace SoundModem
 
             //Sinks
             //ISink sink = new OpenALSink();
-            ISink sink = new Wav("ssb.wav");
+            ISink sink = new Wav("Examples/rtty.wav");
 
             //Main loop
             bool running = true;

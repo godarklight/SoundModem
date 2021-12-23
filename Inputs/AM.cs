@@ -9,12 +9,14 @@ namespace SoundModem
         double carrier;
         double sampleRate;
         IFormat inData;
+        IFilter voiceFilter;
 
         public AM(double carrier, double sampleRate, IFormat inData)
         {
             this.carrier = carrier;
             this.inData = inData;
             this.sampleRate = sampleRate;
+            voiceFilter = new WindowedSinc(1000, 2048, sampleRate);
         }
 
         public bool GetInput(IFormat output)
@@ -24,11 +26,12 @@ namespace SoundModem
                 double? amplitude = inData.ReadInput();
                 if (amplitude == null)
                 {
-                    return false;
+                    return i > 0;
                 }
+                voiceFilter.AddSample(amplitude.Value);
 
                 //Shift from -1:1 to 0:1
-                double amplitudeIQ = 0.5 + (amplitude.Value / 2d);
+                double amplitudeIQ = 0.5 + (voiceFilter.GetSample() / 2d);
 
                 phaseAngle = phaseAngle + (Math.Tau * carrier / sampleRate);
                 double value = amplitudeIQ * Math.Sin(phaseAngle);

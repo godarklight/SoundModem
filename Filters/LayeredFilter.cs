@@ -3,7 +3,7 @@
 using System;
 namespace SoundModem
 {
-    class LayeredFilter : IFilter
+    public class LayeredFilter : IFilter
     {
         IFilter[] filters;
         public LayeredFilter(Func<int, IFilter> generator, int iterations)
