@@ -28,7 +28,7 @@ namespace SoundModem
                 return false;
             }
 
-            Tone.Write(output, samplesPerUnit, freqLow, sampleRate, ref lastAngle);
+            Tone.Write(output, samplesPerUnit, freqLow, sampleRate, 0.5d, ref lastAngle);
 
             //Data bits
             for (int i = 0; i < sendData.Length; i++)
@@ -39,11 +39,11 @@ namespace SoundModem
                 {
                     freqToSend = freqHigh;
                 }
-                Tone.Write(output, samplesPerUnit, freqToSend, sampleRate, ref lastAngle);
+                Tone.Write(output, samplesPerUnit, freqToSend, sampleRate, 0.5d, ref lastAngle);
             }
             
             //Stop bit
-            Tone.Write(output, (int)(samplesPerUnit * 1.5), freqHigh, sampleRate, ref lastAngle);
+            Tone.Write(output, (int)(samplesPerUnit * 1.5), freqHigh, sampleRate, 0.5d, ref lastAngle);
             return true;
         }
     }

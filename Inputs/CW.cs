@@ -58,16 +58,14 @@ namespace SoundModem
             if (b == 0)
             {
                 double phase = 0;
-                Tone.Write(output, samplesPerUnit, 700, 48000, ref phase);
-                Tone.WriteToZero(output, 700, 48000, ref phase);
+                Tone.WriteSoft(output, (int)(samplesPerUnit * 0.8), 700, 48000, 0.5d, ref phase);
             }
 
             //Write dah
             if (b == 1)
             {
                 double phase = 0;
-                Tone.Write(output, 3 * samplesPerUnit, 700, 48000, ref phase);
-                Tone.WriteToZero(output, 700, 48000, ref phase);
+                Tone.WriteSoft(output, (int)(samplesPerUnit * 2.8), 700, 48000, 0.5d, ref phase);
             }
 
             //Write character space
