@@ -43,6 +43,16 @@ namespace SoundModem
             chars.Add('8', new byte[] { 1, 1, 1, 0, 0 });
             chars.Add('9', new byte[] { 1, 1, 1, 1, 0 });
             chars.Add('0', new byte[] { 1, 1, 1, 1, 1 });
+            chars.Add('.', new byte[] { 0, 1, 0, 1, 0, 1 });
+            chars.Add(',', new byte[] { 1, 1, 0, 0, 1, 1 });
+            chars.Add('?', new byte[] { 0, 0, 1, 1, 0, 0 });
+            chars.Add('\'', new byte[] { 0, 1, 1, 1, 1, 0 });
+            chars.Add('/', new byte[] { 1, 0, 0, 1, 0 });
+            chars.Add(':', new byte[] { 1, 1, 1, 0, 0, 0 });
+            chars.Add(';', new byte[] { 1, 0, 1, 0, 1, 0 });
+            chars.Add('+', new byte[] { 0, 1, 0, 1, 0 });
+            chars.Add('-', new byte[] { 1, 0, 0, 0, 0, 1 });
+            chars.Add('=', new byte[] { 1, 0, 0, 0, 1 });
         }
     }
 }
