@@ -12,9 +12,9 @@ namespace SoundModem
         {
             //Digital data
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < 100; i++)
             {
-                sb.Append("The quick brown fox jumps over the lazy dog 1234567890\n");
+                sb.Append("This is a test of godarklights virtual radio server\n");
             }
             byte[] sendMessage = Encoding.ASCII.GetBytes(sb.ToString());
             MemoryStream digitalData = new MemoryStream(sendMessage);
@@ -28,7 +28,7 @@ namespace SoundModem
             //input = new Sine(SAMPLE_RATE, 440, 5);
             //input = new Sawtooth(SAMPLE_RATE, 440, 5);
             //input = new RTTY(SAMPLE_RATE, 500, 170, 45.45, digitalData);
-            input = new CW(SAMPLE_RATE, 24, digitalData);
+            input = new CW(SAMPLE_RATE, 21, digitalData);
             //input = new MFSK(SAMPLE_RATE);
             //input = new BPSK(SAMPLE_RATE, 31.25, digitalData);
             //input = new BPSK(SAMPLE_RATE, 1000, digitalData);
@@ -43,8 +43,8 @@ namespace SoundModem
             IFormat output = new S16LE(outStream, -1);
 
             //Sinks
-            ISink sink = new OpenALSink();
-            //ISink sink = new Wav("Examples/rtty.wav");
+            //ISink sink = new OpenALSink();
+            ISink sink = new Wav("Examples/gdltest.wav");
 
             //Main loop
             bool running = true;

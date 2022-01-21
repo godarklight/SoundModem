@@ -33,16 +33,16 @@ namespace SoundModem
             chars.Add('X', new byte[] { 1, 0, 0, 1 });
             chars.Add('Y', new byte[] { 1, 0, 1, 1 });
             chars.Add('Z', new byte[] { 1, 1, 0, 0 });
-            chars.Add('0', new byte[] { 0, 1, 1, 1, 1 });
-            chars.Add('1', new byte[] { 0, 0, 1, 1, 1 });
-            chars.Add('2', new byte[] { 0, 0, 0, 1, 1 });
-            chars.Add('3', new byte[] { 0, 0, 0, 0, 1 });
-            chars.Add('4', new byte[] { 0, 0, 0, 0, 0 });
-            chars.Add('5', new byte[] { 1, 0, 0, 0, 0 });
-            chars.Add('6', new byte[] { 1, 1, 0, 0, 0 });
-            chars.Add('7', new byte[] { 1, 1, 1, 0, 0 });
-            chars.Add('8', new byte[] { 1, 1, 1, 1, 0 });
-            chars.Add('9', new byte[] { 1, 1, 1, 1, 1 });
+            chars.Add('1', new byte[] { 0, 1, 1, 1, 1 });
+            chars.Add('2', new byte[] { 0, 0, 1, 1, 1 });
+            chars.Add('3', new byte[] { 0, 0, 0, 1, 1 });
+            chars.Add('4', new byte[] { 0, 0, 0, 0, 1 });
+            chars.Add('5', new byte[] { 0, 0, 0, 0, 0 });
+            chars.Add('6', new byte[] { 1, 0, 0, 0, 0 });
+            chars.Add('7', new byte[] { 1, 1, 0, 0, 0 });
+            chars.Add('8', new byte[] { 1, 1, 1, 0, 0 });
+            chars.Add('9', new byte[] { 1, 1, 1, 1, 0 });
+            chars.Add('0', new byte[] { 1, 1, 1, 1, 1 });
         }
     }
 }
